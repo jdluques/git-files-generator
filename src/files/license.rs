@@ -53,7 +53,10 @@ pub async fn generate(license_type: &LicenseType) -> Result<(), Box<dyn Error>> 
         license_type_str.as_str()
     ).await.unwrap();
 
-    utils::create_file(files::FileType::License.to_string().as_str(), &file_content)?;
+    utils::create_file(
+        files::FileType::License.to_string().as_str(),
+        &file_content
+    )?;
 
     Ok(())
 }
