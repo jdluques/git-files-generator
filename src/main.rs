@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = cli::Args::parse();
 
     if !args.gitignore.is_empty() {
-        files::generate_gitignore(&args.gitignore);
+        files::generate_gitignore(&args.gitignore).await?;
     }
 
     if let Some(license_type) = &args.license {

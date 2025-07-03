@@ -1,7 +1,7 @@
 use clap::{ Parser };
 
 use crate::files::{
-    gitignore::IgnoreType,
+    gitignore::GitIgnoreType,
     license::LicenseType,
 };
 
@@ -11,7 +11,7 @@ pub struct Args {
     pub env_example: bool,
 
     #[arg(long, visible_alias="ignore", num_args = 1.., help="Generate .gitignore file")]
-    pub gitignore: Vec<IgnoreType>,
+    pub gitignore: Vec<GitIgnoreType>,
 
     #[arg(long, help="Generate LICENSE file")]
     pub license: Option<LicenseType>,
