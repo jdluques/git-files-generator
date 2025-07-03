@@ -1,4 +1,5 @@
 use clap::ValueEnum;
+use futures::future::join_all;
 use std::{
     fmt::{
         self,
@@ -63,19 +64,29 @@ impl Display for GitIgnoreType {
 }
 
 pub async fn generate(git_ignore_types: &[GitIgnoreType], append: bool) -> Result<(), Box<dyn Error>> {
+    let fetches = git_ignore_types.iter().map(|git_ignore_type| {
+        let git_ignore_type = git_ignore_type.to_string();
+        async move {
+            let git_ignore_content = http_client::fetch_template(
+                &crate::files::FileType::GitIgnore,
+                &git_ignore_type.as_str()
+            ).await.unwrap();
+
+            Ok::<_, Box<dyn Error>>((git_ignore_type, git_ignore_content))
+        }
+    });
+
+    let results = join_all(fetches).await;
+
     let mut file_content = if append {
         String::from("\n")
     } else {
         String::from(".env\n\n")
     };
 
-    for git_ignore_type in git_ignore_types {
-        let git_ignore_type = git_ignore_type.to_string();
-        let git_ignore_content = http_client::fetch_template(
-            &crate::files::FileType::GitIgnore,
-            &git_ignore_type.as_str()
-        ).await.unwrap();
-        
+    for result in results {
+        let (git_ignore_type, git_ignore_content) = result?;
+
         let cleaned_git_ignore_content: String = git_ignore_content
             .lines()
             .filter(|line| {
@@ -87,6 +98,7 @@ pub async fn generate(git_ignore_types: &[GitIgnoreType], append: bool) -> Resul
 
         file_content += &format!("# {}\n{}\n\n", git_ignore_type, cleaned_git_ignore_content);
     }
+
     file_content.pop();
     
     if append {

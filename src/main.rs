@@ -4,6 +4,7 @@ mod http_client;
 mod utils;
 
 use clap::Parser;
+use tokio::join;
 
 #[tokio::main]
 async fn main() {
@@ -16,20 +17,38 @@ async fn main() {
 async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = cli::Args::parse();
 
-    if let Some(git_ignore_types) = &args.gitignore {
-        files::generate_gitignore(&git_ignore_types, args.append).await?;
-    }
+    let gitignore_fut = async {
+        if let Some(git_ignore_types) = &args.gitignore {
+            files::generate_gitignore(&git_ignore_types, args.append).await
+        } else {
+            Ok(())
+        }
+    };
 
-    if let Some(license_type) = &args.license {
-        files::generate_license(&license_type).await?;
-    }
+    let license_fut = async {
+        if let Some(license_type) = &args.license {
+            files::generate_license(&license_type).await
+        } else {
+            Ok(())
+        }
+    };
+    
+    let env_example_fut = async {
+        if args.env_example {
+            files::generate_env_example()
+        } else {
+            Ok(())
+        }
+    };
+    
+    let (gitignore_res, license_res, env_example_res) = join!(gitignore_fut, license_fut, env_example_fut);
+
+    gitignore_res?;
+    license_res?;
+    env_example_res?;
 
     if args.readme {
         files::generate_readme()?;
-    }
-
-    if args.env_example {
-        files::generate_env_example()?;
     }
 
     Ok(())
