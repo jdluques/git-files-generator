@@ -21,14 +21,13 @@ pub enum FileType {
     Readme,
 }
 
-
 impl Display for FileType {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let s = match self {
             FileType::EnvExample => ".env.example",
             FileType::GitIgnore => ".gitignore",
             FileType::License => "LICENSE",
-            FileType::Readme => "README.MD",
+            FileType::Readme => "README.md",
         };
         write!(f, "{}", s)
     }

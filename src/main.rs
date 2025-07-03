@@ -6,7 +6,14 @@ mod utils;
 use clap::Parser;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() {
+    if let Err(err) = run().await {
+        eprintln!("Error: {}", err);
+        std::process::exit(1);
+    }
+}
+
+async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = cli::Args::parse();
 
     if !args.gitignore.is_empty() {
@@ -18,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if args.readme {
-        files::generate_readme();
+        files::generate_readme()?;
     }
 
     if args.env_example {
