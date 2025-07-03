@@ -29,7 +29,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if args.env_example {
-        files::generate_env_example();
+        files::generate_env_example()?;
     }
 
     Ok(())
