@@ -1,4 +1,4 @@
-use clap::{ Parser };
+use clap::{ Parser, ArgAction };
 
 use crate::files::{
     gitignore::GitIgnoreType,
@@ -10,8 +10,8 @@ pub struct Args {
     #[arg(long, help="Generate env.example. file based on project's .env file")]
     pub env_example: bool,
 
-    #[arg(long, visible_alias="ignore", num_args = 1.., help="Generate .gitignore file")]
-    pub gitignore: Vec<GitIgnoreType>,
+    #[arg(long, visible_alias="ignore", num_args = 0.., action = ArgAction::Set, help="Generate .gitignore file")]
+    pub gitignore: Option<Vec<GitIgnoreType>>,
 
     #[arg(long, help="Generate LICENSE file")]
     pub license: Option<LicenseType>,

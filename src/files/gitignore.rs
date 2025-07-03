@@ -59,8 +59,9 @@ impl Display for GitIgnoreType {
     }
 }
 
-pub async fn generate(git_ignore_types: &Vec<GitIgnoreType>) -> Result<(), Box<dyn Error>> {
-    let mut file_content = String::new();
+pub async fn generate(git_ignore_types: &[GitIgnoreType]) -> Result<(), Box<dyn Error>> {
+    let mut file_content = String::from(".env\n\n");
+
     for git_ignore_type in git_ignore_types {
         let git_ignore_type = git_ignore_type.to_string();
         let git_ignore_content = http_client::fetch_template(
@@ -79,6 +80,7 @@ pub async fn generate(git_ignore_types: &Vec<GitIgnoreType>) -> Result<(), Box<d
 
         file_content += &format!("#{}\n{}\n\n", git_ignore_type, cleaned_git_ignore_content);
     }
+    file_content.pop();
     
     utils::create_file(
         files::FileType::GitIgnore.to_string().as_str(),
