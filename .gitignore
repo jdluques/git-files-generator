@@ -1,0 +1,10 @@
+/target/
+**/*.rs.bk
+/Cargo.toml.orig
+
+.idea/
+
+.vscode/
+*.code-workspace
+
+.env
