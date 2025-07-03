@@ -80,7 +80,10 @@ pub async fn generate(git_ignore_types: &Vec<GitIgnoreType>) -> Result<(), Box<d
         file_content += &format!("#{}\n{}\n\n", git_ignore_type, cleaned_git_ignore_content);
     }
     
-    utils::create_file(files::FileType::GitIgnore.to_string().as_str(), &file_content)?;
+    utils::create_file(
+        files::FileType::GitIgnore.to_string().as_str(),
+        &file_content
+    )?;
 
     Ok(())
 }
