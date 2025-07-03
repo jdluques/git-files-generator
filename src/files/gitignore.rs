@@ -5,6 +5,9 @@ use std::{
         Display,
         Formatter,
     },
+    fs::OpenOptions,
+    io::Write,
+    path::Path,
     error::Error,
 };
 
@@ -59,8 +62,12 @@ impl Display for GitIgnoreType {
     }
 }
 
-pub async fn generate(git_ignore_types: &[GitIgnoreType]) -> Result<(), Box<dyn Error>> {
-    let mut file_content = String::from(".env\n\n");
+pub async fn generate(git_ignore_types: &[GitIgnoreType], append: bool) -> Result<(), Box<dyn Error>> {
+    let mut file_content = if append {
+        String::from("\n")
+    } else {
+        String::from(".env\n\n")
+    };
 
     for git_ignore_type in git_ignore_types {
         let git_ignore_type = git_ignore_type.to_string();
@@ -78,14 +85,26 @@ pub async fn generate(git_ignore_types: &[GitIgnoreType]) -> Result<(), Box<dyn 
             .collect::<Vec<_>>()
             .join("\n");
 
-        file_content += &format!("#{}\n{}\n\n", git_ignore_type, cleaned_git_ignore_content);
+        file_content += &format!("# {}\n{}\n\n", git_ignore_type, cleaned_git_ignore_content);
     }
     file_content.pop();
     
-    utils::create_file(
-        files::FileType::GitIgnore.to_string().as_str(),
-        &file_content
-    )?;
+    if append {
+        let path_str = files::FileType::GitIgnore.to_string();
+        let path = Path::new(path_str.as_str());
 
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(path)?;
+
+        file.write_all(file_content.as_bytes())?;
+    } else {
+        utils::create_file(
+            files::FileType::GitIgnore.to_string().as_str(),
+            &file_content
+        )?;
+    }
+    
     Ok(())
 }

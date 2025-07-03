@@ -17,7 +17,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = cli::Args::parse();
 
     if let Some(git_ignore_types) = &args.gitignore {
-        files::generate_gitignore(&git_ignore_types).await?;
+        files::generate_gitignore(&git_ignore_types, args.append).await?;
     }
 
     if let Some(license_type) = &args.license {
