@@ -81,7 +81,7 @@ pub async fn generate(git_ignore_types: &[GitIgnoreType], append: bool) -> Resul
     let mut file_content = if append {
         String::from("\n")
     } else {
-        String::from(".env\n\n")
+        String::from(".env\n.idea/\n.vscode/\n.vscode-test/\n.history/\n\n")
     };
 
     for result in results {
